@@ -127,7 +127,10 @@ def safe_run_code(code, filename='<string>', file_path=None):
         report_syntax_error(e, filename)
         return
     except ValueError as e:
+        # Python 3.12 之前，源码里的空字符走的是 ValueError（之后改成 SyntaxError）
         print(f"\n文件{filename}没法编译：{e}")
+        if 'null bytes' in str(e):
+            print("小建议：文件里混进了空字符（\\x00），多半是被存成了 UTF-16，用 UTF-8 重新保存一下")
         return
 
     global_dict = {'__name__': '__main__', '__file__': file_path or filename}
